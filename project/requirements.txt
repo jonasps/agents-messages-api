@@ -1,0 +1,11 @@
+alembic==1.7.1
+asyncpg==0.24.0
+fastapi==0.85.1
+sqlmodel==0.0.7
+uvicorn==0.15.0
+
+# dev dependency
+pytest==7.1.3
+
+# needed for starlette.testclient
+requests==2.26.0
