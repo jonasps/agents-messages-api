@@ -93,3 +93,4 @@ It's a proof of concept, running fast-api with sqlalchemy async.
 - Automatic tests have not been prioritized.
 - API Client error messages could also be improved.
 - Dockerfile could be improved (adding nondefault user / and security validation)
+- No user authentication
