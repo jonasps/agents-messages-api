@@ -76,24 +76,17 @@ async def add_message(
     message: MessageCreate,
     session: AsyncSession = Depends(get_session),
 ):
-    # wrap with try except
-    try:
-        sender_id: int = await get_agent_id_by_name(session, message.sender_name)
-        reciver_id: int = await get_agent_id_by_name(session, agent_name)
-        message = Message(
-            text=message.text, sender_id=sender_id, receiver_id=reciver_id
-        )
 
-        session.add(message)
-        await session.commit()
-        await session.refresh(message)
-        return message
-    except:
-        # id is added in this case, handle that
-        raise HTTPException(
-            status_code=400,
-            detail=f"Error, Message not sent from {message.sender_name} to {agent_name}",
-        )
+    sender_id: int = await get_agent_id_by_name(session, message.sender_name)
+    reciver_id: int = await get_agent_id_by_name(session, agent_name)
+    message = Message(
+        text=message.text, sender_id=sender_id, receiver_id=reciver_id
+    )
+
+    session.add(message)
+    await session.commit()
+    await session.refresh(message)
+    return message
 
 
 @router.delete("/agents/{agent_name}/messages")

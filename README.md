@@ -1,6 +1,21 @@
-## Development requirements
+
+# Development requirements
 An environment with a working docker-compose.<br/>
 This project was tested on macOS with docker-compose version 1.29.0, build 07737305
+___
+<br/>
+
+## API structure
+
+Get All Agents - GET /agents
+
+Add Agent - POST /agents
+
+Get All Messages - GET /agents/{agent_name}/messages (optional query parameters start_date/end_date/new)
+
+Add Message - POST /agents/{agent_name}/messages
+
+Delete Messages - DELETE /agents/{agent_name}/messages
 ___
 <br/>
 
@@ -9,7 +24,7 @@ ___
 ___
 <br/>
 
-## Run databse migrations
+# Run databse migrations
 <code>docker-compose exec web alembic upgrade head</code>
 ___
 <br/>
@@ -72,3 +87,9 @@ ___
 
 ## generate new migrations with alembic
 <code>docker-compose exec web alembic revision --autogenerate -m "details of revision"</code>
+
+## What is the state of this project
+It's a proof of concept, running fast-api with sqlalchemy async.
+- Automatic tests have not been prioritized.
+- API Client error messages could also be improved.
+- Dockerfile could be improved (adding nondefault user / and security validation)
