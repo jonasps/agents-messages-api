@@ -29,7 +29,6 @@ async def add_agent(agent: AgentCreate, session: AsyncSession = Depends(get_sess
         await session.refresh(agent)
         return agent
     except:
-        # id is added in this case, handle that
         raise HTTPException(status_code=400, detail="Bad agent name")
 
 
@@ -50,20 +49,20 @@ async def get_all_messages(
         # Only query for messages not previusly fetched.
         messages_q = messages_q.where(Message.fetched_at == None)
 
-    else:
-        # Check if query should be filterd by start/end date.
-        if start_date:
-            messages_q = messages_q.where(Message.created_at > start_date)
+    # Check if query should be filterd by start/end date.
+    if start_date:
+        messages_q = messages_q.where(Message.created_at > start_date)
 
-        if end_date:
-            messages_q = messages_q.where(Message.created_at < end_date)
+    if end_date:
+        messages_q = messages_q.where(Message.created_at < end_date)
 
     messages_q = messages_q.options(selectinload(Message.sender))
     result = await session.execute(messages_q)
     messages = result.scalars().all()
 
     # Update fetched_at in the background for new messages
-    background_tasks.add_task(update_fetched_messages_if_needed, messages, session)
+    fetched_at = datetime.datetime.utcnow()
+    background_tasks.add_task(update_fetched_messages_if_needed, messages, session, fetched_at)
 
     # It should be possible to just use ´response_model=Message´ instead of this list comprehension.
     # But for unknown reasons the sender is not included in the response when doing that.

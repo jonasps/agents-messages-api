@@ -22,10 +22,12 @@ async def get_agent_id_by_name(session: AsyncSession, name: str) -> Union[Agent,
 
 
 async def update_fetched_messages_if_needed(
-    messages: List[Message], session: AsyncSession
+    messages: List[Message],
+    session: AsyncSession,
+    fetched_at: datetime
 ) -> None:
     for message in messages:
         if not message.fetched_at:
-            message.fetched_at = datetime.datetime.utcnow()
+            message.fetched_at = fetched_at
             session.add(message)
     await session.commit()
