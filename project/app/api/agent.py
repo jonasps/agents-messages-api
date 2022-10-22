@@ -1,5 +1,6 @@
 from typing import List, Union, Optional
 import datetime
+import asyncio
 
 from fastapi import Depends, APIRouter, HTTPException, BackgroundTasks
 from sqlalchemy.future import select
@@ -32,7 +33,6 @@ async def add_agent(agent: AgentCreate, session: AsyncSession = Depends(get_sess
         raise HTTPException(status_code=400, detail="Bad agent name")
 
 
-
 @router.get("/agents/{agent_name}/messages")
 async def get_all_messages(
     agent_name: str,
@@ -62,7 +62,9 @@ async def get_all_messages(
 
     # Update fetched_at in the background for new messages
     fetched_at = datetime.datetime.utcnow()
-    background_tasks.add_task(update_fetched_messages_if_needed, messages, session, fetched_at)
+    background_tasks.add_task(
+        update_fetched_messages_if_needed, messages, session, fetched_at
+    )
 
     # It should be possible to just use ´response_model=Message´ instead of this list comprehension.
     # But for unknown reasons the sender is not included in the response when doing that.
@@ -76,11 +78,13 @@ async def add_message(
     session: AsyncSession = Depends(get_session),
 ):
 
-    sender_id: int = await get_agent_id_by_name(session, message.sender_name)
-    reciver_id: int = await get_agent_id_by_name(session, agent_name)
-    message = Message(
-        text=message.text, sender_id=sender_id, receiver_id=reciver_id
+    sender_id, reciver_id = await asyncio.gather(
+        *[
+            get_agent_id_by_name(session, message.sender_name),
+            get_agent_id_by_name(session, agent_name),
+        ]
     )
+    message = Message(text=message.text, sender_id=sender_id, receiver_id=reciver_id)
 
     session.add(message)
     await session.commit()

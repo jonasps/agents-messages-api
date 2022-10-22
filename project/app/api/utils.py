@@ -7,7 +7,9 @@ from sqlalchemy.future import select
 from app.models import Agent, Message
 
 
-async def get_agent_id_by_name(session: AsyncSession, name: str) -> Union[Agent, Exception]:
+async def get_agent_id_by_name(
+    session: AsyncSession, name: str
+) -> Union[Agent, Exception]:
     """Returns ´Agent´ matching name or None"""
     agent_by_name_q = select(Agent).where(Agent.name == name)
     result = await session.execute(agent_by_name_q)
@@ -22,9 +24,7 @@ async def get_agent_id_by_name(session: AsyncSession, name: str) -> Union[Agent,
 
 
 async def update_fetched_messages_if_needed(
-    messages: List[Message],
-    session: AsyncSession,
-    fetched_at: datetime
+    messages: List[Message], session: AsyncSession, fetched_at: datetime
 ) -> None:
     for message in messages:
         if not message.fetched_at:
